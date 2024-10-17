@@ -1,0 +1,43 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: nebula-service
+    restart: always
+    env_file: .env
+    ports:
+      - ${NEBULA_PORT}:${NEBULA_PORT}
+    depends_on:
+      - postgres
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: nebula-service
+    restart: always
+    env_file: .env
+    ports:
+      - ${NEBULA_PORT}:${NEBULA_PORT}
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    container_name: postgres-nebula
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+volumes:
+  postgres-data:
