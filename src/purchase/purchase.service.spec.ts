@@ -43,7 +43,7 @@ describe('PurchaseService', () => {
   const mockHttpService = {
     get: jest.fn(),
     post: jest.fn(),
-    put: jest.fn().mockReturnValue(of({ data: 'response data' })), // Mocking put method
+    put: jest.fn().mockReturnValue(of({ data: 'response data' })),
   };
 
   beforeEach(async () => {
@@ -64,7 +64,7 @@ describe('PurchaseService', () => {
         },
         {
           provide: HttpService,
-          useValue: mockHttpService, // Use the mocked HttpService
+          useValue: mockHttpService,
         },
       ],
     }).compile();

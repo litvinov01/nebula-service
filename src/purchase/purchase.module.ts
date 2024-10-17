@@ -7,20 +7,20 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from 'src/user/entities/user.entity';
 import { Offer } from 'src/offer/entities/offer.entity';
+import { BullModule } from '@nestjs/bull';
+import { PurchaseProcessor } from './purchase.processor';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Purchase, User, Offer]),
-    HttpModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        baseURL: configService.get('FETCH_URL'),
-        timeout: 1000,
-      }),
-      inject: [ConfigService],
+    HttpModule.register({
+      timeout: 1000,
+    }),
+    BullModule.registerQueue({
+      name: 'predict-queue',
     }),
   ],
   controllers: [PurchaseController],
-  providers: [PurchaseService],
+  providers: [PurchaseService, ConfigService, PurchaseProcessor],
 })
 export class PurchaseModule {}

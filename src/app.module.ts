@@ -6,6 +6,7 @@ import { OfferModule } from './offer/offer.module';
 import { PurchaseModule } from './purchase/purchase.module';
 import { Offer } from './offer/entities/offer.entity';
 import { Purchase } from './purchase/entities/purchase.entity';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -19,6 +20,13 @@ import { Purchase } from './purchase/entities/purchase.entity';
       database: process.env.POSTGRES_DB,
       entities: [User, Offer, Purchase],
       synchronize: true,
+    }),
+    BullModule.forRoot({
+      redis: {
+        host: process.env.REDIS_HOST,
+        port: Number(process.env.REDIS_PORT),
+        password: process.env.REDIS_PASSWORD,
+      },
     }),
     TypeOrmModule.forFeature([User, Purchase, Offer]),
     OfferModule,

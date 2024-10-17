@@ -8,6 +8,10 @@ import { firstValueFrom } from 'rxjs';
 import { Purchase } from './entities/purchase.entity';
 import { Offer } from '../offer/entities/offer.entity';
 import { User } from '../user/entities/user.entity';
+import { ConfigService } from '@nestjs/config';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import { MS_DAY } from '../common/constants/time';
 
 @Injectable()
 export class PurchaseService {
@@ -19,6 +23,8 @@ export class PurchaseService {
     @InjectRepository(Offer)
     private readonly offerRepository: Repository<Offer>,
     private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+    @InjectQueue('predict-queue') private readonly predictQueue: Queue,
   ) {}
 
   public async create(createPurchaseDto: CreatePurchaseDto) {
@@ -46,14 +52,16 @@ export class PurchaseService {
 
     const created = await this.purchaseRepository.save(purchase);
     await this.handleCreatedPurchase(created);
-
+    await this.sendPostponedPrediction();
     return SUCCESS_MESSAGES.instanceChanged('Purchase', 'created');
   }
 
   private async handleCreatedPurchase(created: Purchase) {
     try {
+      const fetchURL = this.configService.get('FETCH_URL');
+
       const result = await firstValueFrom(
-        this.httpService.put('/some-fake-path', created),
+        this.httpService.put(`${fetchURL}/some-fake-path`, created),
       );
       if (result.status >= 400) {
         await this.purchaseRepository.delete({ id: created.id });
@@ -63,5 +71,15 @@ export class PurchaseService {
       await this.purchaseRepository.delete({ id: created.id });
       throw error;
     }
+  }
+
+  private async sendPostponedPrediction() {
+    await this.predictQueue.add(
+      'send.prediction',
+      { prediction: 'Some fake prediction' },
+      {
+        delay: MS_DAY,
+      },
+    );
   }
 }

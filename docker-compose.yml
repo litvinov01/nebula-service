@@ -39,5 +39,17 @@ services:
     env_file:
       - .env
 
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PORT: ${REDIS_PORT}
+    volumes:
+      - redis-data:/data
+
 volumes:
   postgres-data:
+  redis-data:

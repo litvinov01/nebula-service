@@ -9,6 +9,9 @@ export class Offer {
   @Column({ length: 256, unique: true })
   name: string;
 
+  @Column()
+  price: number;
+
   @OneToMany(() => Purchase, (purchase) => purchase.user)
   purchases: Purchase[];
 }
