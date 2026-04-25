@@ -2,17 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PurchaseService } from './purchase.service';
 import { Purchase } from './entities/purchase.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { Offer } from '../offer/entities/offer.entity';
 import { HttpService } from '@nestjs/axios';
 import { of } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
+import { getQueueToken } from '@nestjs/bull';
 
 describe('PurchaseService', () => {
   let service: PurchaseService;
-  let purchaseRepository: Repository<Purchase>;
-  let userRepository: Repository<User>;
-  let offerRepository: Repository<Offer>;
 
   const mockPurchaseRepository = {
     create: jest.fn().mockImplementation((dto) => ({
@@ -46,6 +44,14 @@ describe('PurchaseService', () => {
     put: jest.fn().mockReturnValue(of({ data: 'response data' })),
   };
 
+  const mockConfigService = {
+    get: jest.fn().mockReturnValue('https://example.com'),
+  };
+
+  const mockPredictQueue = {
+    add: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -66,15 +72,18 @@ describe('PurchaseService', () => {
           provide: HttpService,
           useValue: mockHttpService,
         },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        },
+        {
+          provide: getQueueToken('predict-queue'),
+          useValue: mockPredictQueue,
+        },
       ],
     }).compile();
 
     service = module.get<PurchaseService>(PurchaseService);
-    purchaseRepository = module.get<Repository<Purchase>>(
-      getRepositoryToken(Purchase),
-    );
-    offerRepository = module.get<Repository<Offer>>(getRepositoryToken(Offer));
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
   it('should be defined', () => {
@@ -90,6 +99,6 @@ describe('PurchaseService', () => {
     const createdPurchase = await service.create(dto);
 
     expect(createdPurchase).toBeDefined();
-    expect(createdPurchase).toHaveProperty('id');
+    expect(createdPurchase).toBe('Purchase was successfully created');
   });
 });

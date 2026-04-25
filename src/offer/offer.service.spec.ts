@@ -36,7 +36,7 @@ describe('OfferService', () => {
   });
 
   it('should create offer', async () => {
-    const dto = { name: 'Astrology' };
+    const dto = { name: 'Astrology', price: 20 };
     const created = await service.create(dto);
 
     expect(created).toBeDefined();

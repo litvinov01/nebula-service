@@ -2,7 +2,6 @@ import { HttpService } from '@nestjs/axios';
 import { Process, Processor } from '@nestjs/bull';
 import { ConfigService } from '@nestjs/config';
 import { Job } from 'bull';
-import { firstValueFrom } from 'rxjs';
 
 @Processor('predict-queue')
 export class PurchaseProcessor {
