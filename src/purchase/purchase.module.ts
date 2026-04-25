@@ -5,8 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Purchase } from './entities/purchase.entity';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { User } from 'src/user/entities/user.entity';
-import { Offer } from 'src/offer/entities/offer.entity';
+import { User } from '../user/entities/user.entity';
+import { Offer } from '../offer/entities/offer.entity';
 import { BullModule } from '@nestjs/bull';
 import { PurchaseProcessor } from './purchase.processor';
 
